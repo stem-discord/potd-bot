@@ -1,0 +1,9 @@
+.env
+
+/potd/*
+/userdata_log/*
+config.json
+outjson.json
+settings.json
+userdata.json
+winners.json

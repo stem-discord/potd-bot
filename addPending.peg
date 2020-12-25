@@ -1,0 +1,45 @@
+
+
+
+
+
+Question {
+	KeyValues = 
+		Void ListOf<KeyValue, LineSep> Void
+	KeyValue = 
+		Void key ":" content
+    key = letter+
+    
+	number = 
+		(digit+ "." digit*|"" "." digit+)
+		| digit+ "" ""
+
+	space := 
+		" "
+		| "\t"
+		| comment
+
+
+
+	string = 
+		"\"\"\"" (~"\"\"\"" any)* "\"\"\""
+
+	comment = 
+		"#-#" (~lineBreak any)* --single
+		| "###---###" (~"*/" any)* "###---###" --multi
+	
+	content = 
+		string
+		| inlineContent
+	inlineContent = 
+		notSpace+ (space notSpace+)*
+
+	notSpace = ~space ~lineBreak any
+
+	Void = lineBreak*
+	LineSep = lineBreak+
+	lineBreak = 
+		"\n"
+		| "\r"
+
+}
