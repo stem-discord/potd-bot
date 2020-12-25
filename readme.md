@@ -6,9 +6,9 @@ requred json files
 
 potd/
 
- pending.json
+* pending.json
  
- resolved.json
+* resolved.json
  
 config.json
 
@@ -23,3 +23,6 @@ winners.jso
 .env
 
 TOKEN=YOUR TOKEN HERE
+
+also there is no package.json nor package-lock.json so good luck! :)
+
