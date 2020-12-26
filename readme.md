@@ -18,7 +18,7 @@ settings.json
 
 userdata.json
 
-winners.jso
+winners.json
 
 .env
 
