@@ -763,7 +763,7 @@ client.on(`message`, async (message) => {
 			return;
 		}
 		if (userdata[message.author.id] !== undefined) {
-			return message.channel.send("you already submitted an answer today!");
+			return message.channel.send("you already submitted an answer today! Use `delete submission` to clear your current submission.");
 		}
 		try {
 			console.log(mainGuild.id);
