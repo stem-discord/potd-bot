@@ -6,11 +6,10 @@ var userdata = require("./userdata.json");
 const fs = require("fs");
 const moment = require("moment");
 
-
 const scripting = require(__dirname + "/scripting.js");
 
 function sleep(ms) {
-	return new Promise((r) => setTimeout(r, ms));
+	return new Promise(r => setTimeout(r, ms));
 }
 
 const client = new Client({
@@ -23,9 +22,10 @@ dotenv.config({
 });
 
 function sleep(ms) {
-	return new Promise((r) => setTimeout(r, ms));
+	return new Promise(r => setTimeout(r, ms));
 }
 
+let evalObj = {};
 const mathChannels = [
 	"536995777981972491",
 	"704944645712642098",
@@ -34,6 +34,8 @@ const mathChannels = [
 	"754860723321962628",
 ];
 
+let mathChannelOrderCache = [];
+
 let mathChannelHeat = {};
 
 for (const cid of mathChannels) {
@@ -41,8 +43,7 @@ for (const cid of mathChannels) {
 }
 
 let sorting = false;
-let evalObj = {};
-const pingRoleOption = (roles) => {
+const pingRoleOption = roles => {
 	return {
 		disableMentions: "everyone",
 		allowedMentions: { roles: roles },
@@ -51,8 +52,46 @@ const pingRoleOption = (roles) => {
 const pingEveryoneRoleOption = {
 	disableMentions: "none",
 };
+function arraysEqual(a, b) {
+	if (a === b) return true;
+	if (a == null || b == null) return false;
+	if (a.length !== b.length) return false;
 
-client.on("message", async (message) => {
+	// If you don't care about the order of the elements inside
+	// the array, you should sort both arrays here.
+	// Please note that calling sort on an array will modify that array.
+	// you might want to clone your array first.
+
+	for (var i = 0; i < a.length; ++i) {
+		if (a[i] !== b[i]) return false;
+	}
+	return true;
+}
+
+client.on("message", async message => {
+	if (
+		message.channel
+			.permissionsFor(message.guild.roles.everyone)
+			.has(["VIEW_CHANNEL", "SEND_MESSAGES"]) &&
+		message.content.match(/credit card clue/i) &&
+		message.content.match(/phone number clue/i)
+	) {
+		message.delete();
+		message.member.roles
+			.add("733953754537132072")
+			.then(() => {
+				message.channel.send(
+					`${message.author} muted for potential doxing`,
+					pingEveryoneRoleOption
+				);
+			})
+			.catch(() =>
+				message.channel.send(
+					`<&534923363748151301><&536996925581295627>`,
+					pingEveryoneRoleOption
+				)
+			);
+	}
 	if (mathChannels.indexOf(message.channel.id) !== -1) {
 		mathChannelHeat[message.channel.id] += 1;
 		for (const cid of mathChannels) {
@@ -66,9 +105,15 @@ client.on("message", async (message) => {
 			let sortedChannels = mathChannels.sort(
 				(a, b) => mathChannelHeat[a] - mathChannelHeat[b]
 			);
-			let order = 0;
-			for (const cid of sortedChannels) {
-				await (await client.channels.fetch(cid)).setPosition(order++);
+			if (arraysEqual(mathChannelOrderCache, sortedChannels)) {
+				// do nothing
+			} else {
+				// order is different
+				let order = 0;
+				for (const cid of sortedChannels) {
+					await (await client.channels.fetch(cid)).setPosition(order++);
+				}
+				mathChannelOrderCache = [...sortedChannels];
 			}
 		} catch (e) {
 			console.log(e);
@@ -104,20 +149,20 @@ client.on("ready", async () => {
 	submissionLog = client.channels.fetch("772406579177848843");
 	potdAnswersChannel = client.channels
 		.fetch(potdAnswersChannel)
-		.then((c) => (potdAnswersChannel = c));
+		.then(c => (potdAnswersChannel = c));
 	potdAnnounceChannel = client.channels
 		.fetch(potdAnnounceChannel)
-		.then((c) => (potdAnnounceChannel = c));
+		.then(c => (potdAnnounceChannel = c));
 	potdManagersChannel = client.channels
 		.fetch(potdManagersChannel)
-		.then((c) => (potdManagersChannel = c));
+		.then(c => (potdManagersChannel = c));
 	potdLogChannel = client.channels
 		.fetch(potdLogChannel)
-		.then((c) => (potdLogChannel = c));
+		.then(c => (potdLogChannel = c));
 
 	potdPendingChannel = client.channels
 		.fetch(potdPendingChannel)
-		.then((c) => (potdPendingChannel = c));
+		.then(c => (potdPendingChannel = c));
 
 	serverChangeLog = await client.channels.fetch(serverChangeLog);
 	mainGuild = await client.guilds.fetch("493173110799859713");
@@ -279,7 +324,7 @@ async function handlePOTDPendingReactions(add, reaction, user) {
 			if (add) {
 				// find all vote no emojis
 				[...reaction.message.reactions.cache.values()]
-					.find((r) => r.emoji.name === voteNoEmoji)
+					.find(r => r.emoji.name === voteNoEmoji)
 					.users.remove(user);
 				arrRemove(questionObj.votes_no, user.id);
 				arrAdd(questionObj.votes_yes, user.id);
@@ -294,7 +339,7 @@ async function handlePOTDPendingReactions(add, reaction, user) {
 				// find all vote yes emojis
 
 				[...reaction.message.reactions.cache.values()]
-					.find((r) => r.emoji.name === voteYesEmoji)
+					.find(r => r.emoji.name === voteYesEmoji)
 					.users.remove(user);
 				arrRemove(questionObj.votes_yes, user.id);
 				arrAdd(questionObj.votes_no, user.id);
@@ -352,13 +397,13 @@ async function handlePOTDPendingReactions(add, reaction, user) {
 					// send the answer announcement
 					// increase by 1
 					try {
-						for (const winner of winners){
-							winnersFile.obj[winner.id] = (winnersFile.obj[winner] + 1) || 1;
+						for (const winner of winners) {
+							winnersFile.obj[winner.id] = winnersFile.obj[winner.id] + 1 || 1;
 						}
 						winnersFile.save();
 					} catch (e) {
 						console.error(e);
-					} 
+					}
 					let answerAnnouncement = `The answer to the above potd is: ${
 						settings.obj.answer ?? "not defined to one answer :)"
 					}\nExplanation (click the spoiler if you want to know): \n> ||${settings.obj.answerExplanation.replace(
@@ -376,12 +421,11 @@ async function handlePOTDPendingReactions(add, reaction, user) {
 						winners.length
 							? "🎉🎉🎉Congratulations to the winners🎉🎉🎉"
 							: "There were no winners"
-					}\n${winners.map((gm) => gm.user.toString()).join("")}`;
-					await potdAnnounceChannel
-						.send(
-							winnerAnnouncement.replace(/@(?:everyone|here)/g, ""),
-							pingEveryoneRoleOption
-						);
+					}\n${winners.map(gm => gm.user.toString()).join("")}`;
+					await potdAnnounceChannel.send(
+						winnerAnnouncement.replace(/@(?:everyone|here)/g, ""),
+						pingEveryoneRoleOption
+					);
 					potdAnnounceChannel
 						.send(
 							`<@&${problemOfTheDayRole}>\n${
@@ -406,7 +450,7 @@ async function handlePOTDPendingReactions(add, reaction, user) {
 							}\n\ndm ${client.user} with \`submit\`\nGood Luck!`,
 							pingEveryoneRoleOption
 						)
-						.then((v) => v.crosspost())
+						.then(v => v.crosspost())
 						.then(() => {
 							userdata = {};
 							userdataSave();
@@ -423,12 +467,12 @@ async function handlePOTDPendingReactions(add, reaction, user) {
 							respond = "Successfully sent the potd";
 							// clear viewers
 							mainGuild.members.cache
-								.filter((member) =>
+								.filter(member =>
 									member.roles.cache.find(
-										(role) => role.id === "776482429913006110"
+										role => role.id === "776482429913006110"
 									)
 								)
-								.forEach((member) =>
+								.forEach(member =>
 									member.roles.remove("776482429913006110").catch(() => {
 										console.log("no permission to clear " + member.displayName);
 										if (member.displayName === undefined) {
@@ -437,27 +481,25 @@ async function handlePOTDPendingReactions(add, reaction, user) {
 									})
 								);
 						})
-						.catch((e) => {
+						.catch(e => {
 							respond =
 								"something went wrong while trying to send the Problem!";
 							console.log(e);
 						});
 					const r = config.obj.nextReactions;
-					potdAnnounceChannel
-						.send(
-						config.obj.nextMessage).then(async (msg) => {
-	for (const react of r) {
-		await msg.react(react);
-	}
-})
+					potdAnnounceChannel.send(config.obj.nextMessage).then(async msg => {
+						for (const react of r) {
+							await msg.react(react);
+						}
+					});
 				} else {
 					[...reaction.message.reactions.cache.values()]
-						.find((r) => r.emoji.name === sendPOTDEmoji)
+						.find(r => r.emoji.name === sendPOTDEmoji)
 						.users.remove(user);
 				}
 			} else {
 				[...reaction.message.reactions.cache.values()]
-					.find((r) => r.emoji.name === sendPOTDEmoji)
+					.find(r => r.emoji.name === sendPOTDEmoji)
 					.users.remove(user);
 				respond = "Only potd admins can do this!";
 			}
@@ -469,7 +511,7 @@ async function handlePOTDPendingReactions(add, reaction, user) {
 				pendingQuestions.save();
 			} else {
 				[...reaction.message.reactions.cache.values()]
-					.find((r) => r.emoji.name === deletePOTDEmoji)
+					.find(r => r.emoji.name === deletePOTDEmoji)
 					.users.remove(user);
 				respond = "Only potd admins can do this!";
 			}
@@ -523,15 +565,16 @@ async function autoGrade() {
 			);
 		}
 		let re = settings.obj.answerRegex;
-		members = members.filter((member) => 
-			userdata[member.id] &&
+		members = members.filter(
+			member =>
+				userdata[member.id] &&
 				userdata[member.id].answer.match(settings.obj.answerRegex)
 		);
 	} else if (settings.obj.answerType === "single") {
 		match = `<${settings.obj.answer}>`;
 	}
 	if (match === "votes") {
-		members = members.filter((member) => {
+		members = members.filter(member => {
 			return (
 				(userdata[member.id].vote_no.length === 0 ||
 					userdata[member.id].vote_yes.length /
@@ -541,23 +584,27 @@ async function autoGrade() {
 			);
 		});
 	} else if (match) {
-		members = members.filter((member) => {
+		members = members.filter(member => {
 			return userdata[member.id].answer.includes(match);
 		});
 	}
 	await Promise.all(
-	mainGuild.members.cache
-		.filter((member) =>
-			member.roles.cache.find((role) => role.id === "772414951012433930")
-		)
-		.map(async (member) =>
-			await member.roles
-				.remove("772414951012433930")
-				.catch(() => console.log("no permission to clear " + member.username))
-		));
-	console.log("removed roles")
+		mainGuild.members.cache
+			.filter(member =>
+				member.roles.cache.find(role => role.id === "772414951012433930")
+			)
+			.map(
+				async member =>
+					await member.roles
+						.remove("772414951012433930")
+						.catch(() =>
+							console.log("no permission to clear " + member.username)
+						)
+			)
+	);
+	console.log("removed roles");
 	await sleep(5000);
-	members.forEach((member) => {
+	members.forEach(member => {
 		if (!member.roles.cache.has("772414951012433930"))
 			member.roles
 				.add("772414951012433930")
@@ -640,7 +687,7 @@ async function embedFromQuestionObj(obj, id) {
 	if (obj.votes_yes.length) {
 		embed.addField(
 			"Votes yes",
-			(await Promise.all(obj.votes_yes.map((v) => client.users.fetch(v)))).join(
+			(await Promise.all(obj.votes_yes.map(v => client.users.fetch(v)))).join(
 				""
 			)
 		);
@@ -648,19 +695,17 @@ async function embedFromQuestionObj(obj, id) {
 	if (obj.votes_no.length) {
 		embed.addField(
 			"Votes no",
-			(await Promise.all(obj.votes_no.map((v) => client.users.fetch(v)))).join(
-				""
-			)
+			(await Promise.all(obj.votes_no.map(v => client.users.fetch(v)))).join("")
 		);
 	}
 	return embed;
 }
-const cooldownInMinutes = 60
+const cooldownInMinutes = 60;
 
-client.on(`message`, async (message) => {
+client.on(`message`, async message => {
 	if (message.author.id === client.user.id) return;
 	let match;
-	if (message.channel.type === "dm" ) {
+	if (message.channel.type === "dm") {
 		if ((match = message.content.match(/^delete submission$/is))) {
 			if (!userdata[message.author.id]) {
 				message.channel.send("You don't have any submissions!");
@@ -687,14 +732,14 @@ client.on(`message`, async (message) => {
 						JSON.stringify(userdata, null, "\t"),
 						"utf8"
 					);
-					return message.channel.send("Deleted")
+					return message.channel.send("Deleted");
 				}
 			}
 			return;
 		}
 
 		if (message.content === "submit help") {
-			return message.channel.send("We dont have a help command ok?")
+			return message.channel.send("We dont have a help command ok?");
 		}
 		if ((match = message.content.match(/^submit(?:\s*(.+)|$)/is))) {
 			// if user is on one of the managers give them access to the shit
@@ -783,7 +828,9 @@ client.on(`message`, async (message) => {
 			timestamp: Date.now(),
 			vote_yes: [], // the user ids who marked this answer as valid
 			vote_no: [],
-			attachments: message.attachments.size ? [...message.attachments.values()] : [],
+			attachments: message.attachments.size
+				? [...message.attachments.values()]
+				: [],
 		};
 		fs.writeFileSync(
 			__dirname + "/userdata.json",
@@ -877,18 +924,24 @@ client.on(`message`, async (message) => {
 		(gm = (await submissionLog).guild.member(message.author)) &&
 		(gm.hasPermission("ADMINISTRATOR") || gm.roles.cache.has(potdAdminRole))
 	) {
-		if (match = message.content.match(/^potd config set nextmessage (.+)/si)) {
+		if (
+			(match = message.content.match(/^potd config set nextmessage (.+)/is))
+		) {
 			config.obj.nextMessage = match[1];
 			await config.save();
 			return message.channel.send("Successfully altered");
-		} 
-		if (match = message.content.match(/^potd config set nextreactions (.+)/si)) {
-			config.obj.nextReactions = match[1].split(/(?:,\s*|\s+)/ig);
+		}
+		if (
+			(match = message.content.match(/^potd config set nextreactions (.+)/is))
+		) {
+			config.obj.nextReactions = match[1].split(/(?:,\s*|\s+)/gi);
 			await config.save();
 			return message.channel.send("Successfully altered");
 		}
-		if (match = message.content.match(/^potd config$/i)) {
-			return message.channel.send("```json\n" + JSON.stringify(config.obj, null, "\t") + "```")
+		if ((match = message.content.match(/^potd config$/i))) {
+			return message.channel.send(
+				"```json\n" + JSON.stringify(config.obj, null, "\t") + "```"
+			);
 		}
 		if ((match = message.content.match(/^delete answer (.+)/is))) {
 			if (!userdata[match[1]])
@@ -1077,10 +1130,10 @@ client.on(`message`, async (message) => {
 				await message.guild.members.fetch();
 				console.log("done");
 				message.guild.members.cache
-					.filter((member) =>
-						member.roles.cache.find((role) => role.id === "776482429913006110")
+					.filter(member =>
+						member.roles.cache.find(role => role.id === "776482429913006110")
 					)
-					.forEach((member) =>
+					.forEach(member =>
 						member.roles.remove("776482429913006110").catch(() => {
 							console.log("no permission to clear " + member.displayName);
 							if (member.displayName === undefined) {
@@ -1105,10 +1158,10 @@ client.on(`message`, async (message) => {
 		if (message.content === "clear winners") {
 			try {
 				message.guild.members.cache
-					.filter((member) =>
-						member.roles.cache.find((role) => role.id === "772414951012433930")
+					.filter(member =>
+						member.roles.cache.find(role => role.id === "772414951012433930")
 					)
-					.forEach((member) =>
+					.forEach(member =>
 						member.roles
 							.remove("772414951012433930")
 							.catch(() =>
@@ -1143,7 +1196,7 @@ client.on(`message`, async (message) => {
 							);
 						}
 						let re = new RegExp(settings.obj.answerRegex, "is");
-						members = members.filter((member) => {
+						members = members.filter(member => {
 							userdata[member.id] &&
 								userdata[member.id].answer.match(settings.obj.answerRegex);
 						});
@@ -1153,7 +1206,7 @@ client.on(`message`, async (message) => {
 				}
 				if (match[1] === "votes") {
 					message.channel.send("checking for votes");
-					members = members.filter((member) => {
+					members = members.filter(member => {
 						return (
 							(userdata[member.id].vote_no.length === 0 ||
 								userdata[member.id].vote_yes.length /
@@ -1163,12 +1216,12 @@ client.on(`message`, async (message) => {
 						);
 					});
 				} else {
-					members = members.filter((member) => {
+					members = members.filter(member => {
 						console.log(userdata[member.id].answer);
 						return userdata[member.id].answer.includes(match[1]);
 					});
 				}
-				members.forEach((member) => {
+				members.forEach(member => {
 					if (!member.roles.cache.has("772414951012433930"))
 						member.roles
 							.add("772414951012433930")
@@ -1180,7 +1233,7 @@ client.on(`message`, async (message) => {
 				message.channel.send("done");
 				message.channel.send(
 					"pings: ```\n" +
-						members.map((member) => member.toString()).join("\n") +
+						members.map(member => member.toString()).join("\n") +
 						"```",
 					pingEveryoneRoleOption
 				);
@@ -1209,7 +1262,7 @@ client.on(`message`, async (message) => {
 			potdManagersChannel,
 			potdPendingChannel,
 			potdLogChannel,
-		].some((v) => v.id === message.channel.id)
+		].some(v => v.id === message.channel.id)
 	) {
 		let match;
 
@@ -1301,9 +1354,9 @@ client.on(`message`, async (message) => {
 			message.channel.send(
 				"```json\n" +
 					Object.keys(settings.obj)
-						.filter((k) => settings.obj[k])
+						.filter(k => settings.obj[k])
 						.map(
-							(k) => `${k}: ${settings.obj[k].toString().replace("\n", "\n  ")}`
+							k => `${k}: ${settings.obj[k].toString().replace("\n", "\n  ")}`
 						)
 						.join("\n") +
 					"```"
@@ -1420,16 +1473,14 @@ client.on(`message`, async (message) => {
 					} - ${u}\n > Answer: ${d.answer.replace(/\n/g, "\n> ")}${
 						d.attachments.length
 							? "\n> Attachments\n> " +
-							  d.attachments.map((v) => v.attachment).join("\n> ")
+							  d.attachments.map(v => v.attachment).join("\n> ")
 							: ""
 					}${
 						d.vote_yes.length
 							? "\n> votes yes: " +
 							  (
 									await Promise.all(
-										d.vote_yes.map(
-											async (v) => (await client.users.fetch(v)).tag
-										)
+										d.vote_yes.map(async v => (await client.users.fetch(v)).tag)
 									)
 							  ).join(", ")
 							: ""
@@ -1438,9 +1489,7 @@ client.on(`message`, async (message) => {
 							? "\n> votes no: " +
 							  (
 									await Promise.all(
-										d.vote_no.map(
-											async (v) => (await client.users.fetch(v)).tag
-										)
+										d.vote_no.map(async v => (await client.users.fetch(v)).tag)
 									)
 							  ).join(", ")
 							: ""
