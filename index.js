@@ -25,16 +25,14 @@ function sleep(ms) {
 	return new Promise(r => setTimeout(r, ms));
 }
 
-let evalObj = {};
 const mathChannels = [
 	"536995777981972491",
 	"704944645712642098",
 	"641351235215294486",
 	"641351291343208448",
 	"754860723321962628",
+	"803057978277888020",
 ];
-
-let mathChannelOrderCache = [];
 
 let mathChannelHeat = {};
 
@@ -43,6 +41,7 @@ for (const cid of mathChannels) {
 }
 
 let sorting = false;
+let evalObj = {};
 const pingRoleOption = roles => {
 	return {
 		disableMentions: "everyone",
@@ -52,46 +51,8 @@ const pingRoleOption = roles => {
 const pingEveryoneRoleOption = {
 	disableMentions: "none",
 };
-function arraysEqual(a, b) {
-	if (a === b) return true;
-	if (a == null || b == null) return false;
-	if (a.length !== b.length) return false;
-
-	// If you don't care about the order of the elements inside
-	// the array, you should sort both arrays here.
-	// Please note that calling sort on an array will modify that array.
-	// you might want to clone your array first.
-
-	for (var i = 0; i < a.length; ++i) {
-		if (a[i] !== b[i]) return false;
-	}
-	return true;
-}
 
 client.on("message", async message => {
-	if (
-		message.channel
-			.permissionsFor(message.guild.roles.everyone)
-			.has(["VIEW_CHANNEL", "SEND_MESSAGES"]) &&
-		message.content.match(/credit card clue/i) &&
-		message.content.match(/phone number clue/i)
-	) {
-		message.delete();
-		message.member.roles
-			.add("733953754537132072")
-			.then(() => {
-				message.channel.send(
-					`${message.author} muted for potential doxing`,
-					pingEveryoneRoleOption
-				);
-			})
-			.catch(() =>
-				message.channel.send(
-					`<&534923363748151301><&536996925581295627>`,
-					pingEveryoneRoleOption
-				)
-			);
-	}
 	if (mathChannels.indexOf(message.channel.id) !== -1) {
 		mathChannelHeat[message.channel.id] += 1;
 		for (const cid of mathChannels) {
@@ -105,15 +66,9 @@ client.on("message", async message => {
 			let sortedChannels = mathChannels.sort(
 				(a, b) => mathChannelHeat[a] - mathChannelHeat[b]
 			);
-			if (arraysEqual(mathChannelOrderCache, sortedChannels)) {
-				// do nothing
-			} else {
-				// order is different
-				let order = 0;
-				for (const cid of sortedChannels) {
-					await (await client.channels.fetch(cid)).setPosition(order++);
-				}
-				mathChannelOrderCache = [...sortedChannels];
+			let order = 0;
+			for (const cid of sortedChannels) {
+				await (await client.channels.fetch(cid)).setPosition(order++);
 			}
 		} catch (e) {
 			console.log(e);
@@ -398,7 +353,7 @@ async function handlePOTDPendingReactions(add, reaction, user) {
 					// increase by 1
 					try {
 						for (const winner of winners) {
-							winnersFile.obj[winner.id] = winnersFile.obj[winner.id] + 1 || 1;
+							winnersFile.obj[winner.id] = winnersFile.obj[winner] + 1 || 1;
 						}
 						winnersFile.save();
 					} catch (e) {
@@ -808,7 +763,9 @@ client.on(`message`, async message => {
 			return;
 		}
 		if (userdata[message.author.id] !== undefined) {
-			return message.channel.send("you already submitted an answer today!");
+			return message.channel.send(
+				"you already submitted an answer today! Use `delete submission` to clear your current submission."
+			);
 		}
 		try {
 			console.log(mainGuild.id);
