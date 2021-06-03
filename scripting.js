@@ -1,7 +1,7 @@
-const ohm = require(`ohm-js`);
-const fs = require(`fs`);
+const ohm = require("ohm-js");
+const fs = require("fs");
 
-const g = ohm.grammar(fs.readFileSync(__dirname + `/addPending.peg`));
+const g = ohm.grammar(fs.readFileSync(__dirname + "/addPending.peg"));
 
 const s = g.createSemantics();
 
@@ -15,38 +15,38 @@ explanation: bruh
 difficulty: 6m
 `;
 
-s.addOperation(`interpret`, {
-	KeyValues: function (_, e, _) {
-		return { keyValues: e.interpret() };
-	},
-	KeyValue: function (_, t, _, content) {
-		return { key: t.interpret(), content: content.interpret() };
-	},
-	key: function (v) {
-		return this.sourceString;
-	},
+s.addOperation("interpret", {
+  KeyValues: function (_, e, _) {
+    return { keyValues: e.interpret() };
+  },
+  KeyValue: function (_, t, _, content) {
+    return { key: t.interpret(), content: content.interpret() };
+  },
+  key: function (v) {
+    return this.sourceString;
+  },
 
-	content: function (c) {
-		return c.interpret();
-	},
+  content: function (c) {
+    return c.interpret();
+  },
 
-	inlineContent: function (_, _, _) {
-		return this.sourceString;
-	},
+  inlineContent: function (_, _, _) {
+    return this.sourceString;
+  },
 
-	NonemptyListOf: function (a, b, c) {
-		return [a.interpret(), ...c.children.map((v) => v.interpret())];
-	},
-	EmptyListOf: function () {
-		return [];
-	},
+  NonemptyListOf: function (a, b, c) {
+    return [a.interpret(), ...c.children.map((v) => v.interpret())];
+  },
+  EmptyListOf: function () {
+    return [];
+  },
 
-	number: function (_, _, _) {
-		return parseFloat(this.sourceString);
-	},
-	string: function (_, s, _) {
-		return s.sourceString;
-	},
+  number: function (_, _, _) {
+    return parseFloat(this.sourceString);
+  },
+  string: function (_, s, _) {
+    return s.sourceString;
+  },
 });
 
 // s.addOperation(`json`, {
@@ -67,10 +67,10 @@ s.addOperation(`interpret`, {
 // 	console.log(mr.message);
 // }
 module.exports = (t) => {
-	let mr = g.match(t);
-	if (mr.succeeded()) {
-		return s(mr).interpret();
-	} else {
-		throw new Exception(mr.message);
-	}
+  let mr = g.match(t);
+  if (mr.succeeded()) {
+    return s(mr).interpret();
+  } else {
+    throw new Exception(mr.message);
+  }
 };
