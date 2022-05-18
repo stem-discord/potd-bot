@@ -12,8 +12,12 @@ jobs:
         with:
           go-version: '^1.13.8'
 
-      - name: Creat go.mod file
+      - name: Create go.mod file
         run: go mod init github.com/stem-discord/potd-bot/stav
+
+      - name: Get all pkgs
+        run: go get github.com/bwmarrin/discordgo
+        run: go get gopkg.in/robfig/cron.v2
 
       - name: Check if build works
         run: go build ./stav/main.go
