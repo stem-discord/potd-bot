@@ -1,5 +1,5 @@
 name: CI
-on: ["push"]
+on: ["commit"]
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -16,7 +16,7 @@ jobs:
         run: go mod init github.com/stem-discord/potd-bot/stav
 
       - name: Check if build works
-        run: go ./stav/main.go
+        run: go build ./stav/main.go
       
   sandbox-deploy:
     needs: build
