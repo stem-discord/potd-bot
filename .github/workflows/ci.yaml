@@ -13,7 +13,7 @@ jobs:
           go-version: '^1.13.8'
 
       - name: Check if build works
-        run: go build
+        run: go build ./stav/main.go
       
   sandbox-deploy:
     needs: build
