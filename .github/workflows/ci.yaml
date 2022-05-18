@@ -38,6 +38,9 @@ jobs:
         # My poor raspberry pi needs to survive. No more disk stuff
          clean: false
 
+      - name: Install dependencies
+        run: go get -d ./stav
+
       - run: " > .env"
       - run: |
           echo "DISCORD_BOT_ID=960764870490476554
