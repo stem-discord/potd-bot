@@ -17,6 +17,9 @@ jobs:
 
       - name: Get discord
         run: go get github.com/bwmarrin/discordgo 
+
+      - name: Get godotenv
+        run: go get github.com/joho/godotenv
       
       - name: Get cron.v2  
         run: go get gopkg.in/robfig/cron.v2
