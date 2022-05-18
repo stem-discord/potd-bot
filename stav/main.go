@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 	"time"
 
 	discord "github.com/bwmarrin/discordgo"
@@ -16,7 +17,19 @@ var (
 	index        int
 )
 
+var (
+	token string = "OTYwNzY0ODcwNDkwNDc2NTU0.GdWa53.NBaXajnueKmQRDFBXX2U9P_M-hkOQVfGJzFdB0"
+
+	potdChannelID string = "976351498806099971"
+	potdRoleID    string = "976351806974201866"
+	botID         string = "960764870490476554"
+	//guildID          string = "976351498806099968"
+	//potdWinnerRoleID string = "976351900201021480"
+)
+
 func main() {
+	getEnv()
+
 	println("Starting up...")
 
 	//---------set up discord API
@@ -246,6 +259,16 @@ func onNewMessage(session *discord.Session, message *discord.MessageCreate) {
 	}
 }
 
+func getEnv() {
+	token = os.Getenv("BOT_TOKEN")
+	botID = os.Getenv("BOT_ID")
+	//guildID = os.Getenv("GUILD_ID")
+
+	potdRoleID = os.Getenv("POTD_ROLE_ID")
+	potdChannelID = os.Getenv("POTD_CHANNEL_ID")
+	//potdWinnerRoleID = os.Getenv("POTD_WINNER_ROLE_ID")
+}
+
 type puzzle struct {
 	Metadata struct {
 		CreatedTimestamp int      `json:"createdTimestamp"`
@@ -266,13 +289,6 @@ type puzzle struct {
 		Images    []string `json:"images"`
 	} `json:"content"`
 }
-
-const (
-	token         string = "OTYwNzY0ODcwNDkwNDc2NTU0.GdWa53.NBaXajnueKmQRDFBXX2U9P_M-hkOQVfGJzFdB0"
-	potdChannelID string = "917043544617795667"
-	potdRoleID    string = "972818493739253790"
-	botID         string = "960764870490476554"
-)
 
 // What he have so far:
 // Sends a new POTD every specified period
