@@ -16,7 +16,7 @@ jobs:
         run: go mod init github.com/stem-discord/potd-bot/stav
 
       - name: Check if build works
-        run: go build github.com/stem-discord/potd-bot/stav/main.go
+        run: go ./stav/main.go
       
   sandbox-deploy:
     needs: build
