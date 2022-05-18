@@ -29,9 +29,13 @@ var (
 )
 
 func main() {
-	getEnv()
-	println(token)
+	path, _ := os.Getwd()
+	if path[len(path)-8:] != "potd-bot" {
+		fmt.Println("Error, please run in /potd-bot")
+		return
+	}
 
+	getEnv()
 	println("Starting up...")
 
 	//---------set up discord API
@@ -92,7 +96,7 @@ func refreshActivePuzzle() (puzzle, int) {
 	}
 
 	// Read the DB
-	rawDatabase, err := ioutil.ReadFile("../puzzleDB.json")
+	rawDatabase, err := ioutil.ReadFile("./resources/puzzleDB.json")
 	if err != nil {
 		log.Fatal(err.Error())
 		return parsedDB.PuzzleArchive[parsedDB.CurrentPuzzleIndex], parsedDB.CurrentPuzzleIndex
@@ -106,7 +110,7 @@ func refreshActivePuzzle() (puzzle, int) {
 	}
 
 	// Reset all stats
-	err = ioutil.WriteFile("../currentPuzzleStats.json", []byte("{\n    \"answeredUsers\": [],\n    \"correctUsers\": []\n}"), 0644)
+	err = ioutil.WriteFile("./resources/currentPuzzleStats.json", []byte("{\n    \"answeredUsers\": [],\n    \"correctUsers\": []\n}"), 0644)
 	if err != nil {
 		log.Fatal(err.Error())
 		return parsedDB.PuzzleArchive[parsedDB.CurrentPuzzleIndex], parsedDB.CurrentPuzzleIndex
@@ -208,7 +212,7 @@ func onNewMessage(session *discord.Session, message *discord.MessageCreate) {
 		return
 	}
 
-	rawPuzzleStats, err := ioutil.ReadFile("../currentPuzzleStats.json")
+	rawPuzzleStats, err := ioutil.ReadFile("./resources/currentPuzzleStats.json")
 	if err != nil {
 		println(err.Error())
 		return
@@ -237,15 +241,13 @@ func onNewMessage(session *discord.Session, message *discord.MessageCreate) {
 		}
 	}
 
-	println("I am a bugger")
-
 	rawPuzzleStats, err = json.MarshalIndent(parsedPuzzleStats, "", "    ")
 	if err != nil {
 		println(err.Error())
 		return
 	}
 
-	err = ioutil.WriteFile("../currentPuzzleStats.json", rawPuzzleStats, 0644)
+	err = ioutil.WriteFile("./resources/currentPuzzleStats.json", rawPuzzleStats, 0644)
 	if err == nil {
 		_, err = session.ChannelMessageSend(channel.ID, "Your answer has been recorded! Good luck!")
 
@@ -262,7 +264,7 @@ func onNewMessage(session *discord.Session, message *discord.MessageCreate) {
 }
 
 func getEnv() {
-	err := godotenv.Load(".env")
+	err := godotenv.Load("./stav/.env")
 
 	if err != nil {
 		log.Fatal("Error loading .env file: ", err.Error())

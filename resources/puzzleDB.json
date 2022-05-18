@@ -1,0 +1,214 @@
+{
+    "currentPuzzleIndex": 0,
+    "puzzleArchive": [
+        {
+            "metadata": {
+                "createdTimestamp": 1651838767,
+                "EditedTimestamp": 1651838767,
+                "contributers": [
+                    916283225347866645
+                ],
+                "authorID": [
+                    916283225347866645
+                ],
+                "puzzleType": "mcq",
+                "subject": "cs",
+                "uuid": -1,
+                "tags": [
+                    "coding",
+                    "arrays",
+                    "for loops",
+                    "loops",
+                    "coputer science"
+                ]
+            },
+            "content": {
+                "puzzle": "Given the array `a = [1, 2, 3, 4]` What will the following program do: \n```for i is smaller than 4:\n    a[i] = i%2```",
+                "answers": [
+                    "[0, 0, 0, 0]",
+                    "[1, 1, 1, 1]",
+                    "[4, 3, 2, 1]",
+                    "[0, 1, 0, 1]"
+                ],
+                "answerKey": [
+                    "4"
+                ],
+                "regex": "",
+                "hint": "% is a mod operator",
+                "images": []
+            }
+        },
+        {
+            "metadata": {
+                "createdTimestamp": 1651957784,
+                "EditedTimestamp": 1651957784,
+                "contributers": [
+                    190208502323609602,
+                    916283225347866645
+                ],
+                "authorID": [
+                    190208502323609602
+                ],
+                "puzzleType": "number",
+                "subject": "math",
+                "uuid": -1,
+                "tags": [
+                    "geomatry",
+                    "proofs",
+                    "parallelogram",
+                    "ratios"
+                ]
+            },
+            "content": {
+                "puzzle": "There is parallelogram of sides $s_1, s_2, s_1, s_2$. Altitudes of the shape $h_1, h_2$ are perpendicular to $s_1$ and $s_2$ respectively. Given $s_1:s_2=2.5$, what is the decimal value of $h_1:h_2$?",
+                "answers": [],
+                "answerKey": [
+                    "0.4",
+                    "0,4",
+                    ".4",
+                    ",4"
+                ],
+                "regex": "",
+                "hint": "Use the formula for the area of the parallelogram twice.",
+                "images": []
+            }
+        },
+        {
+            "metadata": {
+                "createdTimestamp": 1651957784,
+                "EditedTimestamp": 1651957784,
+                "contributers": [
+                    190208502323609602,
+                    916283225347866645
+                ],
+                "authorID": [
+                    190208502323609602
+                ],
+                "puzzleType": "mcq",
+                "subject": "math",
+                "uuid": -1,
+                "tags": [
+                    "geomatry",
+                    "proofs",
+                    "circles"
+                ]
+            },
+            "content": {
+                "puzzle": "Different points $A, B, C, D$ lie on a circle. Segments $AB$ and $CD$ intersect at point $X$. Which statement could be false?",
+                "answers": [
+                    "$|\\measuredangle ACB|=|\\measuredangle ADB|$",
+                    "$|AX| \\cdot |XB| = |CX| \\cdot |XD|$",
+                    "$|\\measuredangle CAD|+|\\measuredangle DBC|=180^\\circ$",
+                    "Lines $AB, AC, AD, BC, BD, CD$ are secants of the circle."
+                ],
+                "answerKey": [
+                    "1"
+                ],
+                "regex": "",
+                "hint": "Make a drawing and draw all the chords. Look up the properties of angles and quadrilaterals inscribed in circles.",
+                "images": []
+            }
+        },
+        {
+            "metadata": {
+                "createdTimestamp": 1651957784,
+                "EditedTimestamp": 1651957784,
+                "contributers": [
+                    190208502323609602,
+                    916283225347866645
+                ],
+                "authorID": [
+                    190208502323609602
+                ],
+                "puzzleType": "mcq",
+                "subject": "math",
+                "uuid": -1,
+                "tags": [
+                    "chess",
+                    "proofs",
+                    "board",
+                    "true false",
+                    "IMO style"
+                ]
+            },
+            "content": {
+                "puzzle": "Consider an infinite game board made of congruent tiles that are regular hexagons. Is it possible to paint each tile with one of three colors so that no two tiles of the same color have a common side? Assume painting an infinite game board is possible.",
+                "answers": [
+                    "yes",
+                    "no"
+                ],
+                "answerKey": [
+                    "A"
+                ],
+                "regex": "",
+                "hint": "Look up what a hexagonal tiling looks like. Color two neighboring tiles.",
+                "images": []
+            }
+        },
+        {
+            "metadata": {
+                "createdTimestamp": 1651957784,
+                "EditedTimestamp": 1651957784,
+                "contributers": [
+                    190208502323609602,
+                    916283225347866645
+                ],
+                "authorID": [
+                    190208502323609602
+                ],
+                "puzzleType": "number",
+                "subject": "number",
+                "uuid": -1,
+                "tags": [
+                    "counting systems"
+                ]
+            },
+            "content": {
+                "puzzle": "The duodecimal system is a positional counting system similar to the decimal system commonly used, with the difference that instead of ten digits, there are twelve (let's assume these are in ascending order: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, X, Y). Calculate $100:3+9 \\cdot $Y$ - $X in the duodecimal system; provide the answer in duodecimal.",
+                "answers": [],
+                "answerKey": [
+                    "Y5"
+                ],
+                "regex": "",
+                "hint": "You can convert duodecimal into decimal: $10 \\to 12$, $10 \\to 12^2=144$, X$ \\to 10$, Y$\\to 11$, $40 \\to 4 \\cdot 12 = 48$, etc. You can also convert back.",
+                "images": []
+            }
+        },
+        {
+            "metadata": {
+                "createdTimestamp": 1651957784,
+                "EditedTimestamp": 1651957784,
+                "contributers": [
+                    190208502323609602,
+                    916283225347866645
+                ],
+                "authorID": [
+                    190208502323609602
+                ],
+                "puzzleType": "mcq",
+                "subject": "number",
+                "uuid": -1,
+                "tags": [
+                    "counting systems"
+                ]
+            },
+            "content": {
+                "puzzle": "A numerical function $f$ has a domain $F$ and is odd. Which statements are true?",
+                "answers": [
+                    "$f(0)$ does not have to exist.",
+                    "$0 \\in F$, $f(0)=0$.",
+                    "$f$ can not be even.",
+                    "$f(5)$ exists if and only if $f(-5)$ exists."
+                ],
+                "answerKey": [
+                    "1",
+                    "2",
+                    "4"
+                ],
+                "regex": "",
+                "hint": "Consider the odd functions $f_1(x)=0, f_2(x)=x^{-1}$ with respective domains $F_1=\\mathbb{R}, F_2=\\mathbb{R}\\setminus\\lbrace{0\rbrace}$ as examples.",
+                "images": []
+            }
+        }
+    ]
+}
