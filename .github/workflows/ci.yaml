@@ -40,9 +40,9 @@ jobs:
 
       - run: " > .env"
       - run: |
-          DISCORD_BOT_ID=960764870490476554
+          echo "DISCORD_BOT_ID=960764870490476554
           POTD_ROLE_ID=976351806974201866
-          POTD_CHANNEL_ID=976351498806099971
+          POTD_CHANNEL_ID=976351498806099971" >> .env
 
       - run: echo "DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN }}" >> .env
 
