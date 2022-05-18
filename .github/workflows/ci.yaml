@@ -12,6 +12,9 @@ jobs:
         with:
           go-version: '^1.13.8'
 
+      - name: Creat go.mod file
+        run: go mod init
+
       - name: Check if build works
         run: go build ./stav/main.go
       
