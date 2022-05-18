@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	discord "github.com/bwmarrin/discordgo"
@@ -166,14 +167,14 @@ func sendNewPOTD(stavBot *discord.Session) {
 	})
 
 	//}
-
-	footer := "Written by: "
-	for _, author := range activePuzzle.Metadata.Authors {
+	
+	authors := [3]string{}
+	for i, author := range activePuzzle.Metadata.Authors {
 		user, _ := stavBot.User(fmt.Sprint(author))
-		footer += user.Username + "#" + user.Discriminator + ", "
+		authors[i] = user.Username + "#" + user.Discriminator
 	}
-
-	footer = footer[:len(footer)-2]
+	
+	footer := "Written by: " + strings.Join(authors[:], ", ")
 
 	footer += "  |  POTD #" + fmt.Sprint(index+1) + ", " + time.Now().Format("02 Jan 2006") // maps to current date, go is stupid
 
