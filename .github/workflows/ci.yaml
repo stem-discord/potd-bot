@@ -13,10 +13,10 @@ jobs:
           go-version: '^1.13.8'
 
       - name: Creat go.mod file
-        run: go mod init ./stav
+        run: go mod init github.com/stem-discord/potd-bot/stav
 
       - name: Check if build works
-        run: go build ./stav/main.go
+        run: go build github.com/stem-discord/potd-bot/stav/main.go
       
   sandbox-deploy:
     needs: build
