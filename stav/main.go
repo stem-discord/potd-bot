@@ -260,9 +260,9 @@ func onNewMessage(session *discord.Session, message *discord.MessageCreate) {
 }
 
 func getEnv() {
-	token = os.Getenv("BOT_TOKEN")
-	botID = os.Getenv("BOT_ID")
-	//guildID = os.Getenv("GUILD_ID")
+	token = os.Getenv("DISCORD_BOT_TOKEN")
+	botID = os.Getenv("DISCORD_BOT_ID")
+	//guildID = os.Getenv("DISCORD_GUILD_ID")
 
 	potdRoleID = os.Getenv("POTD_ROLE_ID")
 	potdChannelID = os.Getenv("POTD_CHANNEL_ID")
