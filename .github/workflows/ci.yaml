@@ -40,6 +40,9 @@ jobs:
 
       - name: Install dependencies
         run: go get -d ./stav
+      
+      - name: Build
+        run: go build ./stav/main.go
 
       - run: " > .env"
       - run: |
