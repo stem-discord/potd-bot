@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"strings"
 	"time"
@@ -30,28 +29,32 @@ var (
 )
 
 func main() {
-	getEnv()
-	println(token)
+	path, _ := os.Getwd()
+	if path[len(path)-8:] != "potd-bot" {
+		fmt.Println("Error, please run in /potd-bot")
+		os.Exit(1)
+	}
 
-	println("Starting up...")
+	getEnv()
+	fmt.Println("Starting up...")
 
 	//---------set up discord API
 
 	// Creating a new bot session
 	stavBot, err := discord.New("Bot " + token)
 	if err != nil {
-		log.Fatal(err.Error())
-		return
+		fmt.Println(err.Error())
+		os.Exit(1)
 	}
 
 	// Activating the bot
 	if err = stavBot.Open(); err != nil {
-		log.Fatal(err.Error())
-		return
+		fmt.Println(err.Error())
+		os.Exit(1)
 	}
 	defer stavBot.Close()
 	stavBot.AddHandler(onNewMessage)
-	println("Bot is running!")
+	fmt.Println("Bot is running!")
 
 	// update global vars
 	activePuzzle, index = refreshActivePuzzle()
@@ -93,31 +96,31 @@ func refreshActivePuzzle() (puzzle, int) {
 	}
 
 	// Read the DB
-	rawDatabase, err := ioutil.ReadFile("../puzzleDB.json")
+	rawDatabase, err := ioutil.ReadFile("./resources/puzzleDB.json")
 	if err != nil {
-		log.Fatal(err.Error())
-		return parsedDB.PuzzleArchive[parsedDB.CurrentPuzzleIndex], parsedDB.CurrentPuzzleIndex
+		fmt.Println(err.Error())
+		os.Exit(1)
 	}
 
 	// Parse the DB into parsedPuzzleDatabase
 	err = json.Unmarshal(rawDatabase, &parsedDB)
 	if err != nil {
-		log.Fatal(err.Error())
-		return parsedDB.PuzzleArchive[parsedDB.CurrentPuzzleIndex], parsedDB.CurrentPuzzleIndex
+		fmt.Println(err.Error())
+		os.Exit(1)
 	}
 
 	// Reset all stats
-	err = ioutil.WriteFile("../currentPuzzleStats.json", []byte("{\n    \"answeredUsers\": [],\n    \"correctUsers\": []\n}"), 0644)
+	err = ioutil.WriteFile("./resources/currentPuzzleStats.json", []byte("{\n    \"answeredUsers\": [],\n    \"correctUsers\": []\n}"), 0644)
 	if err != nil {
-		log.Fatal(err.Error())
-		return parsedDB.PuzzleArchive[parsedDB.CurrentPuzzleIndex], parsedDB.CurrentPuzzleIndex
+		fmt.Println(err.Error())
+		os.Exit(1)
 	}
 
 	return parsedDB.PuzzleArchive[parsedDB.CurrentPuzzleIndex], parsedDB.CurrentPuzzleIndex
 }
 
 func sendNewPOTD(stavBot *discord.Session) {
-	println("Sending POTD...")
+	fmt.Println("Sending POTD...")
 
 	pingMessage := "<@&" + potdRoleID + ">, New puzzle for you to solve!\n"
 
@@ -194,7 +197,7 @@ func sendNewPOTD(stavBot *discord.Session) {
 		Embeds:  embed,
 	})
 	if err != nil {
-		println(err.Error())
+		fmt.Println(err.Error())
 	}
 }
 
@@ -209,15 +212,15 @@ func onNewMessage(session *discord.Session, message *discord.MessageCreate) {
 		return
 	}
 
-	rawPuzzleStats, err := ioutil.ReadFile("../currentPuzzleStats.json")
+	rawPuzzleStats, err := ioutil.ReadFile("./resources/currentPuzzleStats.json")
 	if err != nil {
-		println(err.Error())
+		fmt.Println(err.Error())
 		return
 	}
 
 	err = json.Unmarshal(rawPuzzleStats, &parsedPuzzleStats)
 	if err != nil {
-		println(err.Error())
+		fmt.Println(err.Error())
 		return
 	}
 
@@ -225,7 +228,7 @@ func onNewMessage(session *discord.Session, message *discord.MessageCreate) {
 		if message.Author.ID == userID {
 			_, err = session.ChannelMessageSend(channel.ID, "Hey! No cheating, you have already answered today, please wait for the next POTD to answer again")
 			if err != nil {
-				println(err.Error())
+				fmt.Println(err.Error())
 			}
 			return
 		}
@@ -238,35 +241,34 @@ func onNewMessage(session *discord.Session, message *discord.MessageCreate) {
 		}
 	}
 
-	println("I am a bugger")
-
 	rawPuzzleStats, err = json.MarshalIndent(parsedPuzzleStats, "", "    ")
 	if err != nil {
-		println(err.Error())
+		fmt.Println(err.Error())
 		return
 	}
 
-	err = ioutil.WriteFile("../currentPuzzleStats.json", rawPuzzleStats, 0644)
+	err = ioutil.WriteFile("./resources/currentPuzzleStats.json", rawPuzzleStats, 0644)
 	if err == nil {
 		_, err = session.ChannelMessageSend(channel.ID, "Your answer has been recorded! Good luck!")
 
 		if err != nil {
-			println(err.Error())
+			fmt.Println(err.Error())
 		}
 	} else {
 		_, err = session.ChannelMessageSend(channel.ID, "ERROR, We have some kind of database error, please contact @XpioWolf#9420 and they will be on the issue right away.")
 
 		if err != nil {
-			println(err.Error())
+			fmt.Println(err.Error())
 		}
 	}
 }
 
 func getEnv() {
-	err := godotenv.Load(".env")
+	err := godotenv.Load("./stav/.env")
 
 	if err != nil {
-		log.Fatal("Error loading .env file: ", err.Error())
+		fmt.Printf("Error loading .env file: %s", err.Error())
+		os.Exit(1)
 	}
 
 	token = os.Getenv("DISCORD_BOT_TOKEN")
