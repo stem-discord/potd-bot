@@ -1,0 +1,15 @@
+{
+  "apps": [
+    {
+      "name": "potd-bot",
+      "script": "./main",
+      "exec_interpreter": "none",
+      "exec_mode"  : "fork_mode",
+      "autorestart": true,
+      "watch": false,
+      "time": true,
+      "min_uptime": "1m",
+      "max_restarts": 2
+    }
+  ]
+}
