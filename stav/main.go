@@ -9,6 +9,7 @@ import (
 	"time"
 
 	discord "github.com/bwmarrin/discordgo"
+	godotenv "github.com/joho/godotenv"
 	"gopkg.in/robfig/cron.v2"
 )
 
@@ -18,7 +19,7 @@ var (
 )
 
 var (
-	token string = "OTYwNzY0ODcwNDkwNDc2NTU0.GdWa53.NBaXajnueKmQRDFBXX2U9P_M-hkOQVfGJzFdB0"
+	token string
 
 	potdChannelID string = "976351498806099971"
 	potdRoleID    string = "976351806974201866"
@@ -29,6 +30,7 @@ var (
 
 func main() {
 	getEnv()
+	println(token)
 
 	println("Starting up...")
 
@@ -260,6 +262,12 @@ func onNewMessage(session *discord.Session, message *discord.MessageCreate) {
 }
 
 func getEnv() {
+	err := godotenv.Load(".env")
+
+	if err != nil {
+		log.Fatal("Error loading .env file: ", err.Error())
+	}
+
 	token = os.Getenv("DISCORD_BOT_TOKEN")
 	botID = os.Getenv("DISCORD_BOT_ID")
 	//guildID = os.Getenv("DISCORD_GUILD_ID")
