@@ -1,4 +1,4 @@
-module github.com/xpiowolf/potd-backend/stav
+module github.com/stem-discord/potd-bot/stav
 
 go 1.13
 
