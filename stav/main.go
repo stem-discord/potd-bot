@@ -44,7 +44,7 @@ func main() {
 
 	fmt.Println("Starting up...")
 
-	// Creating a new bot session
+	// Create a new bot session
 	stavBot, err := discord.New("Bot " + token)
 	if err != nil {
 		fmt.Println(err.Error())
