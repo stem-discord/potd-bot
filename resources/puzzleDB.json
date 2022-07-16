@@ -211,37 +211,5 @@
             }
         }
     ],
-    "unauthPuzzles": [
-        {
-            "metadata": {
-                "createdTimestamp": 0,
-                "editedTimestamp": 0,
-                "allContributers": [
-                    0
-                ],
-                "creditContirbuters": [
-                    0
-                ],
-                "puzzleType": "mcq",
-                "subject": "",
-                "uuid": 0
-            },
-            "content": {
-                "puzzle": "What is 1 + 1?",
-                "answers": [
-                    "1",
-                    "2",
-                    "3",
-                    "4"
-                ],
-                "answerKey": [
-                    "2"
-                ],
-                "hint": "two",
-                "images": [
-                    "https://1.bp.blogspot.com/-7uKsYCtE3bQ/Xtg3CfxqUxI/AAAAAAAAkEE/sQ7-I0eQemUcpSrmapiIBgOU8xqgtsXHACK4BGAsYHg/s1920/sage-3572718_1920.jpg"
-                ]
-            }
-        }
-    ]
+    "unauthPuzzles": []
 }

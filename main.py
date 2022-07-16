@@ -5,7 +5,7 @@
 # set up reading and writing to DB
 # set up submiting quetions
 # set up sending the submits and auth by mods
-import os, interactions, discord, json, asyncio
+import os, interactions, discord, json, asyncio, time
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -24,7 +24,7 @@ def readDB(path):
 
     return database
 
-def getFields(formType):
+def getEmbedFields(formType):
     if formType == "mcq":
         return ([
             interactions.TextInput(
@@ -52,7 +52,7 @@ def getFields(formType):
                 style=interactions.TextStyleType.PARAGRAPH,
                 label="True answer indexes, separate with a comma",
                 custom_id="answerKey",
-                placeholder="If thr 2nd and 3rd answer inputed above are correct, input 2, 3",
+                placeholder="If the 2nd and 3rd answer inputed above are correct, input 2, 3",
                 required=True,
             ),
             interactions.TextInput(
@@ -72,12 +72,57 @@ bot_id=int(os.getenv("BOT_ID"))
 bot_token = os.getenv("DISCORD_BOT_TOKEN")
 stem_server_id=int(os.getenv("STEM_SERVER_ID"))
 update_channel_id=int(os.getenv("BOT_UPDATE_CHANNEL"))
+management_channel_id=int(os.getenv("POTD_MAN_CHANNEL_ID"))
+potd_ping_role_id=int(os.getenv("POTD_PING_ROLE_ID"))
+potd_manager_role_id=int(os.getenv("POTD_MANAGER_ROLE_ID"))
 
 database = readDB(database_path)
 
 #clients
 bot_interactions_client = interactions.Client(token=bot_token)
 bot_discord_client = discord.Client()
+
+#
+async def postForAuth(ctx:interactions.CommandContext, potd):
+    ping = f"<@&{potd_manager_role_id}> A new POTD has been submitted"
+
+    embed = interactions.Embed(color=0x000000)
+    embed.title="New POTD submission!"
+    embed.description=f"Posted by <@{int(ctx.author.id)}> ID: {int(ctx.author.id)}"
+    embed.add_field(name="PUZZLE:",value=potd["content"]["puzzle"],inline=True)
+
+    answers = ""
+    for i in range(len(potd["content"]["answers"])):
+        answers += f"{i+1}) {potd['content']['answers'][i]}\n"
+    
+    embed.add_field(name="POSSIBLE ANSWERS:",value=answers,inline=True)
+
+    if potd['content']['hint'] != "":
+        embed.add_field(name="HINT:",value=f"||{potd['content']['hint']}||",inline=False)
+
+    answerKey = "||"
+    for i in range(len(potd['content']['answerKey'])):
+        answerKey += f"{potd['content']['answerKey'][i]}, "
+    answerKey = answerKey[:-2] + "||"
+    embed.add_field(name="CORRECT ANSWER(S):",value=answerKey)
+
+    potdID = potd["metadata"]["uuid"]
+
+    delete_button = interactions.Button(
+        style=interactions.ButtonStyle.DANGER,
+        label="deleteButton",
+        custom_id="deletePOTD_button_" + str(potdID)
+    )
+
+    row = interactions.ActionRow(components=[delete_button])
+
+    _channel = await bot_interactions_client._http.get_channel(management_channel_id)
+    channel = interactions.Channel(**_channel, _client=bot_interactions_client._http)
+
+    await channel.send(ping)
+    await channel.send(embeds=embed, components=row)
+    await ctx.send("Submitted, thanks!", ephemeral=True)
+
 
 
 #events
@@ -97,31 +142,32 @@ async def create_multiple_choice_question(ctx: interactions.CommandContext):
     modal = interactions.Modal(
         title="Puzzle Form",
         custom_id="mcq_form",
-        components=getFields("mcq")
+        components=getEmbedFields("mcq")
     )
     await ctx.popup(modal)
 
 @bot_interactions_client.modal("mcq_form")
-async def modal_response(ctx, puzzle:str, images:str, possible_answers:str, answer_key:str, hint:str):
+async def modal_response(ctx:interactions.CommandContext, puzzle:str, images:str, possible_answers:str, answer_key:str, hint:str):
     if "$$" in puzzle:
         pass #need to write a function to handle latex 
     splitAnswers = possible_answers.split(" | ")
     splitIndexes = answer_key.split(", ")
-    splitImages = images.split(", ")
+    if images != "": splitImages =  images.split(", ") 
+    else: splitImages = []
 
     jsonObj = {
         "metadata": {
-            "createdTimestamp": 0,
-            "editedTimestamp": 0,
+            "createdTimestamp": int(time.time()),
+            "editedTimestamp": int(time.time()),
             "allContributers": [
-                0
+                int(ctx.author.id)
             ],
             "creditContirbuters": [
-                0
+                int(ctx.author.id)
             ],
             "puzzleType": "mcq",
             "subject": "",
-            "uuid": 0
+            "uuid": len(database["unauthPuzzles"])
         },
         "content": {
             "puzzle": puzzle,
@@ -131,10 +177,17 @@ async def modal_response(ctx, puzzle:str, images:str, possible_answers:str, answ
             "images": splitImages
         }
     }
-    database.update({"unauthPuzzles": []})
+  
     database["unauthPuzzles"].append(jsonObj)
     updateDB(database, database_path)
-    await ctx.send("Submitted, thanks!", ephemeral=True)
+    await postForAuth(ctx,database["unauthPuzzles"][-1])
+
+@bot_interactions_client.event
+async def on_component(ctx: interactions.ComponentContext):
+    if "deletePOTD_button_" in ctx.data.custom_id:
+        database["unauthPuzzles"].pop(int(ctx.data.custom_id[len("deletePOTD_button_"):]))
+        updateDB(database,database_path)
+    await ctx.send("Done!")
 
 loop = asyncio.get_event_loop()
 
