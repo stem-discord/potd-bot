@@ -1,4 +1,4 @@
-# Written by: XpioWold; July 2022; please see LICENSE
+# Written by: XpioWolf; July 2022; please see LICENSE
 
 # Get ENV
 # set up bot - send message in dev channel and in terminal
@@ -192,13 +192,21 @@ async def modal_response(ctx:interactions.CommandContext, puzzle:str, images:str
     database["unauthPuzzles"].append(jsonObj)
     updateDB(database, database_path)
     await postForAuth(ctx,database["unauthPuzzles"][-1])
+    os.system(f"git add {database_path}")
+    os.system("git commit -m \"Updated Question Database\"")
+    os.system("git push")
+    await postForAuth(ctx,database["unauthPuzzles"][-1])
 
 @bot_interactions_client.event
 async def on_component(ctx: interactions.ComponentContext):
     if "deletePOTD_button_" in ctx.data.custom_id:
         database["unauthPuzzles"].pop(int(ctx.data.custom_id[len("deletePOTD_button_"):]))
         updateDB(database,database_path)
-    await ctx.send("Done!")
+        await ctx.send("Done!")
+        os.system(f"git add {database_path}")
+        os.system("git commit -m \"Updated Question Database\"")
+        os.system("git push")
+    
 
 bot_interactions_client.start()
 #loop = asyncio.get_event_loop()
