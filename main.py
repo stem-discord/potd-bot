@@ -24,7 +24,7 @@ def readDB(path):
 
     return database
 
-def getEmbedFields(formType):
+def getModalFields(formType):
     if formType == "mcq":
         return ([
             interactions.TextInput(
@@ -124,7 +124,6 @@ async def postForAuth(ctx:interactions.CommandContext, potd):
     await ctx.send("Submitted, thanks!", ephemeral=True)
 
 
-
 #events
 @bot_discord_client.event
 async def on_ready():
@@ -142,7 +141,7 @@ async def create_multiple_choice_question(ctx: interactions.CommandContext):
     modal = interactions.Modal(
         title="Puzzle Form",
         custom_id="mcq_form",
-        components=getEmbedFields("mcq")
+        components=getModalFields("mcq")
     )
     await ctx.popup(modal)
 
