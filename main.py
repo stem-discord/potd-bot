@@ -5,7 +5,7 @@
 # set up reading and writing to DB
 # set up submiting quetions
 # set up sending the submits and auth by mods
-import os, interactions, discord, json, asyncio, time
+import os, interactions, json, time
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -80,7 +80,7 @@ database = readDB(database_path)
 
 #clients
 bot_interactions_client = interactions.Client(token=bot_token)
-bot_discord_client = discord.Client()
+#bot_discord_client = discord.Client()
 
 #
 async def postForAuth(ctx:interactions.CommandContext, potd):
@@ -125,12 +125,24 @@ async def postForAuth(ctx:interactions.CommandContext, potd):
 
 
 #events
-@bot_discord_client.event
+@bot_interactions_client.event
 async def on_ready():
-    await bot_discord_client.change_presence(activity=discord.Game(name="with question marks"))
+    presence = interactions.ClientPresence(
+        activities=[
+            interactions.PresenceActivity(
+                name="With numbers",
+                type=interactions.PresenceActivityType.GAME
+            ),
+        ],
+        status=interactions.StatusType.ONLINE,
+    )
+    await bot_interactions_client.change_presence(presence)
 
-    await bot_discord_client.get_channel(update_channel_id).send("I'm online!")
-    print(f"I'm online as @{bot_discord_client.get_user(bot_id)}\nDiscord API version: {discord.__version__}\nBot version: {bot_version}")
+    _channel = await bot_interactions_client._http.get_channel(update_channel_id)
+    channel = interactions.Channel(**_channel, _client=bot_interactions_client._http)
+
+    await channel.send("I'm online!")
+    print(f"I'm online as @{bot_interactions_client.me.name}\nBot version: {bot_version}")
 
 @bot_interactions_client.command(
     name="create_multiple_choice_question",
@@ -188,10 +200,11 @@ async def on_component(ctx: interactions.ComponentContext):
         updateDB(database,database_path)
     await ctx.send("Done!")
 
-loop = asyncio.get_event_loop()
+bot_interactions_client.start()
+#loop = asyncio.get_event_loop()
 
-task2 = loop.create_task(bot_discord_client.start(bot_token))
-task1 = loop.create_task(bot_interactions_client.start())
+#task2 = loop.create_task(bot_discord_client.start(bot_token))
+#task1 = loop.create_task()
 
-gathered = asyncio.gather(task1, task2, loop=loop)
-loop.run_until_complete(gathered)
+#gathered = asyncio.gather(task1, task2, loop=loop)
+#loop.run_until_complete(gathered)
