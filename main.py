@@ -79,7 +79,7 @@ potd_manager_role_id=int(os.getenv("POTD_MANAGER_ROLE_ID"))
 database = readDB(database_path)
 
 #clients
-bot_interactions_client = interactions.Client(token=bot_token)
+stav = interactions.Client(token=bot_token)
 #bot_discord_client = discord.Client()
 
 #
@@ -116,8 +116,8 @@ async def postForAuth(ctx:interactions.CommandContext, potd):
 
     row = interactions.ActionRow(components=[delete_button])
 
-    _channel = await bot_interactions_client._http.get_channel(management_channel_id)
-    channel = interactions.Channel(**_channel, _client=bot_interactions_client._http)
+    _channel = await stav._http.get_channel(management_channel_id)
+    channel = interactions.Channel(**_channel, _client=stav._http)
 
     await channel.send(ping)
     await channel.send(embeds=embed, components=row)
@@ -125,7 +125,7 @@ async def postForAuth(ctx:interactions.CommandContext, potd):
 
 
 #events
-@bot_interactions_client.event
+@stav.event
 async def on_ready():
     presence = interactions.ClientPresence(
         activities=[
@@ -136,15 +136,15 @@ async def on_ready():
         ],
         status=interactions.StatusType.ONLINE,
     )
-    await bot_interactions_client.change_presence(presence)
+    await stav.change_presence(presence)
 
-    _channel = await bot_interactions_client._http.get_channel(update_channel_id)
-    channel = interactions.Channel(**_channel, _client=bot_interactions_client._http)
+    _channel = await stav._http.get_channel(update_channel_id)
+    channel = interactions.Channel(**_channel, _client=stav._http)
 
     await channel.send("I'm online!")
-    print(f"I'm online as @{bot_interactions_client.me.name}\nBot version: {bot_version}")
+    print(f"I'm online as @{stav.me.name}\nBot version: {bot_version}")
 
-@bot_interactions_client.command(
+@stav.command(
     name="create_multiple_choice_question",
     description="Submit a multiple choice question, this will be reviewed by managemnet and then posted as a POTD",
     scope=stem_server_id,
@@ -157,7 +157,7 @@ async def create_multiple_choice_question(ctx: interactions.CommandContext):
     )
     await ctx.popup(modal)
 
-@bot_interactions_client.modal("mcq_form")
+@stav.modal("mcq_form")
 async def modal_response(ctx:interactions.CommandContext, puzzle:str, images:str, possible_answers:str, answer_key:str, hint:str):
     if "$$" in puzzle:
         pass #need to write a function to handle latex 
@@ -197,7 +197,7 @@ async def modal_response(ctx:interactions.CommandContext, puzzle:str, images:str
     os.system("git push")
     await postForAuth(ctx,database["unauthPuzzles"][-1])
 
-@bot_interactions_client.event
+@stav.event
 async def on_component(ctx: interactions.ComponentContext):
     if "deletePOTD_button_" in ctx.data.custom_id:
         database["unauthPuzzles"].pop(int(ctx.data.custom_id[len("deletePOTD_button_"):]))
@@ -208,11 +208,4 @@ async def on_component(ctx: interactions.ComponentContext):
         os.system("git push")
     
 
-bot_interactions_client.start()
-#loop = asyncio.get_event_loop()
-
-#task2 = loop.create_task(bot_discord_client.start(bot_token))
-#task1 = loop.create_task()
-
-#gathered = asyncio.gather(task1, task2, loop=loop)
-#loop.run_until_complete(gathered)
+stav.start()
