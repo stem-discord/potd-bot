@@ -76,6 +76,7 @@ management_channel_id=int(os.getenv("POTD_MAN_CHANNEL_ID"))
 potd_ping_role_id=int(os.getenv("POTD_PING_ROLE_ID"))
 potd_manager_role_id=int(os.getenv("POTD_MANAGER_ROLE_ID"))
 
+gitBackup = False
 database = readDB(database_path)
 
 #clients
@@ -165,11 +166,12 @@ async def modal_response(ctx:interactions.CommandContext, puzzle:str, images:str
     splitIndexes = answer_key.split(", ")
     if images != "": splitImages =  images.split(", ") 
     else: splitImages = []
+    t = int(time.time())
 
     jsonObj = {
         "metadata": {
-            "createdTimestamp": int(time.time()),
-            "editedTimestamp": int(time.time()),
+            "createdTimestamp": t,
+            "editedTimestamp": t,
             "allContributers": [
                 int(ctx.author.id)
             ],
@@ -178,7 +180,7 @@ async def modal_response(ctx:interactions.CommandContext, puzzle:str, images:str
             ],
             "puzzleType": "mcq",
             "subject": "",
-            "uuid": len(database["unauthPuzzles"])
+            "uuid": t
         },
         "content": {
             "puzzle": puzzle,
@@ -190,22 +192,26 @@ async def modal_response(ctx:interactions.CommandContext, puzzle:str, images:str
     }
   
     database["unauthPuzzles"].append(jsonObj)
+    database["unauthIndex"][f"{t}"] = len(database['unauthPuzzles']) - 1
     updateDB(database, database_path)
     await postForAuth(ctx,database["unauthPuzzles"][-1])
-    os.system(f"git add {database_path}")
-    os.system("git commit -m \"Updated Question Database\"")
-    os.system("git push")
-    await postForAuth(ctx,database["unauthPuzzles"][-1])
+    if gitBackup:
+        os.system(f"git add {database_path}")
+        os.system("git commit -m \"Updated Question Database\"")
+        os.system("git push")
 
 @stav.event
 async def on_component(ctx: interactions.ComponentContext):
     if "deletePOTD_button_" in ctx.data.custom_id:
-        database["unauthPuzzles"].pop(int(ctx.data.custom_id[len("deletePOTD_button_"):]))
+        Id = int(ctx.data.custom_id[len("deletePOTD_button_"):])
+        index = database["unauthIndex"][f"{Id}"]
+        database["unauthPuzzles"][index]={}
         updateDB(database,database_path)
         await ctx.send("Done!")
-        os.system(f"git add {database_path}")
-        os.system("git commit -m \"Updated Question Database\"")
-        os.system("git push")
-    
+        if gitBackup:
+            os.system(f"git add {database_path}")
+            os.system("git commit -m \"Updated Question Database\"")
+            os.system("git push")
+        
 
 stav.start()

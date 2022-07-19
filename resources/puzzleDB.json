@@ -1,5 +1,10 @@
 {
     "currentPuzzleIndex": 0,
+    "unauthIndex": {
+        "1658236326": 6,
+        "1658236482": 6,
+        "1658236588": 7
+    },
     "puzzleArchive": [
         {
             "metadata": {
@@ -211,141 +216,5 @@
             }
         }
     ],
-    "unauthPuzzles": [
-        {
-            "metadata": {
-                "createdTimestamp": 1658071414,
-                "editedTimestamp": 1658071414,
-                "allContributers": [
-                    916283225347866645
-                ],
-                "creditContirbuters": [
-                    916283225347866645
-                ],
-                "puzzleType": "mcq",
-                "subject": "",
-                "uuid": 0
-            },
-            "content": {
-                "puzzle": "just a test",
-                "answers": [
-                    "no",
-                    "yes"
-                ],
-                "answerKey": [
-                    "2"
-                ],
-                "hint": "",
-                "images": []
-            }
-        },
-        {
-            "metadata": {
-                "createdTimestamp": 1658071486,
-                "editedTimestamp": 1658071486,
-                "allContributers": [
-                    916283225347866645
-                ],
-                "creditContirbuters": [
-                    916283225347866645
-                ],
-                "puzzleType": "mcq",
-                "subject": "",
-                "uuid": 1
-            },
-            "content": {
-                "puzzle": "just a test",
-                "answers": [
-                    "no",
-                    "yes"
-                ],
-                "answerKey": [
-                    "2"
-                ],
-                "hint": "",
-                "images": []
-            }
-        },
-        {
-            "metadata": {
-                "createdTimestamp": 1658071795,
-                "editedTimestamp": 1658071795,
-                "allContributers": [
-                    916283225347866645
-                ],
-                "creditContirbuters": [
-                    916283225347866645
-                ],
-                "puzzleType": "mcq",
-                "subject": "",
-                "uuid": 2
-            },
-            "content": {
-                "puzzle": "just a test",
-                "answers": [
-                    "no",
-                    "yes"
-                ],
-                "answerKey": [
-                    "2"
-                ],
-                "hint": "",
-                "images": []
-            }
-        },
-        {
-            "metadata": {
-                "createdTimestamp": 1658072053,
-                "editedTimestamp": 1658072053,
-                "allContributers": [
-                    916283225347866645
-                ],
-                "creditContirbuters": [
-                    916283225347866645
-                ],
-                "puzzleType": "mcq",
-                "subject": "",
-                "uuid": 3
-            },
-            "content": {
-                "puzzle": "just a test",
-                "answers": [
-                    "no",
-                    "yes"
-                ],
-                "answerKey": [
-                    "2"
-                ],
-                "hint": "",
-                "images": []
-            }
-        },
-        {
-            "metadata": {
-                "createdTimestamp": 1658072144,
-                "editedTimestamp": 1658072144,
-                "allContributers": [
-                    916283225347866645
-                ],
-                "creditContirbuters": [
-                    916283225347866645
-                ],
-                "puzzleType": "mcq",
-                "subject": "",
-                "uuid": 4
-            },
-            "content": {
-                "puzzle": "just a test",
-                "answers": [
-                    "no",
-                    "yes"
-                ],
-                "answerKey": [
-                    "2"
-                ],
-                "hint": "",
-                "images": []
-            }
-        }
-    ]
+    "unauthPuzzles": []
 }
