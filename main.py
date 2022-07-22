@@ -111,17 +111,38 @@ async def postForAuth(ctx:interactions.CommandContext, potd):
 
     delete_button = interactions.Button(
         style=interactions.ButtonStyle.DANGER,
-        label="deleteButton",
-        custom_id="deletePOTD_button_" + str(potdID)
+        label="Remove submission",
+        custom_id="deletePOTD_button_" + str(potdID),
+        #emoji=interactions.Emoji(name=":-1:")
     )
 
-    row = interactions.ActionRow(components=[delete_button])
+    accept_button = interactions.Button(
+        style=interactions.ButtonStyle.SUCCESS,
+        label="Accept submission",
+        custom_id="acceptPOTD_button_" + str(potdID),
+        #emoji=interactions.Emoji(name=":-1:")
+    )
+
+    edit_button= interactions.Button(
+        style=interactions.ButtonStyle.PRIMARY,
+        label="Edit submission",
+        custom_id="editPOTD_button_" + str(potdID),
+        #emoji=interactions.Emoji(name=":-1:")
+    )
+
+    thread_button = interactions.Button(
+        style=interactions.ButtonStyle.PRIMARY,
+        label="Open thread with submitter",
+        custom_id="threadPOTD_button_" + str(potdID),
+        #emoji=interactions.Emoji(name=":-1:")
+    )
+
+    row = interactions.ActionRow(components=[delete_button, accept_button, edit_button, thread_button])
 
     _channel = await stav._http.get_channel(management_channel_id)
     channel = interactions.Channel(**_channel, _client=stav._http)
 
-    await channel.send(ping)
-    await channel.send(embeds=embed, components=row)
+    await channel.send(content=ping, embeds=embed, components=row)
     await ctx.send("Submitted, thanks!", ephemeral=True)
 
 
@@ -203,15 +224,29 @@ async def modal_response(ctx:interactions.CommandContext, puzzle:str, images:str
 @stav.event
 async def on_component(ctx: interactions.ComponentContext):
     if "deletePOTD_button_" in ctx.data.custom_id:
-        Id = int(ctx.data.custom_id[len("deletePOTD_button_"):])
-        index = database["unauthIndex"][f"{Id}"]
+        Id = ctx.data.custom_id[len("deletePOTD_button_"):]
+        index = database["unauthIndex"][Id]
         database["unauthPuzzles"][index]={}
         updateDB(database,database_path)
-        await ctx.send("Done!")
+        await ctx.message.delete()
+        await ctx.send("Done!", ephemeral=True)
         if gitBackup:
             os.system(f"git add {database_path}")
             os.system("git commit -m \"Updated Question Database\"")
             os.system("git push")
+    if "acceptPOTD_button_" in ctx.data.custom_id:
+        Id = ctx.data.custom_id[len("acceptPOTD_button_"):]
+        index = database["unauthIndex"][Id]
+        database["puzzleArchive"].append(database["unauthPuzzles"][index])
+        database["unauthIndex"][Id] = {}
+        updateDB(database,database_path)
+        await ctx.message.delete()
+        await ctx.send("Done!", ephemeral=True)
+        if gitBackup:
+            os.system(f"git add {database_path}")
+            os.system("git commit -m \"Updated Question Database\"")
+            os.system("git push")
+        
         
 
 stav.start()
