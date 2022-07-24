@@ -314,13 +314,51 @@ async def on_component(ctx: interactions.ComponentContext):
             custom_id=str(customid),
             components=getModalFields("editMcq", potd=potd)
         )
-        await ctx.message.delete()
         await ctx.popup(modal)
 
 @stav.persistent_modal("mcq_edit_form")
 async def modal_response(ctx:interactions.ComponentContext, package, puzzle:str, images:str, possible_answers:str, answer_key:str, hint:str):
     # important!! the persistent package is flawed and fixes have not yet been released, so fixes in source code must be copied over to server.
-    print(f"horray!, id: {package}")
+    if "$$" in puzzle:
+        pass #need to write a function to handle latex 
+    splitAnswers = possible_answers.split(" | ")
+    splitIndexes = answer_key.split(", ")
+    if images != "": splitImages =  images.split(", ") 
+    else: splitImages = []
+    t = int(time.time())
+
+    Id = database["unauthIndex"][package]
+
+    jsonObj = {
+        "metadata": {
+            "createdTimestamp": database["unauthPuzzles"][Id]["metadata"]["createdTimestamp"],
+            "editedTimestamp": t,
+            "allContributers": [
+                database["unauthPuzzles"][Id]["metadata"]["allContributers"], int(ctx.author.id)
+            ],
+            "creditContirbuters": [
+                database["unauthPuzzles"][Id]["metadata"]["creditContirbuters"]
+            ],
+            "puzzleType": "mcq",
+            "subject": "",
+            "uuid": database["unauthPuzzles"][Id]["metadata"]["uuid"]
+        },
+        "content": {
+            "puzzle": puzzle,
+            "answers": splitAnswers,
+            "answerKey": splitIndexes,
+            "hint": hint,
+            "images": splitImages
+        }
+    }
+    database["puzzleArchive"].append(jsonObj)
+    updateDB(database, database_path)
+    await ctx.message.delete()
+    await ctx.send("Done!", ephemeral=True)
+    if gitBackup:
+        os.system(f"git add {database_path}")
+        os.system("git commit -m \"Updated Question Database\"")
+        os.system("git push")
         
 
 stav.start()
