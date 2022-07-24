@@ -7,6 +7,7 @@
 # set up sending the submits and auth by mods
 import os, interactions, json, time
 from dotenv import load_dotenv
+from interactions.ext.persistence import *
 
 load_dotenv()
 
@@ -24,7 +25,7 @@ def readDB(path):
 
     return database
 
-def getModalFields(formType):
+def getModalFields(formType, potd=0):
     if formType == "mcq":
         return ([
             interactions.TextInput(
@@ -63,6 +64,60 @@ def getModalFields(formType):
                 required=False,
             ),
         ])
+    if formType == "editMcq":
+        images = ""
+        answers = ""
+        answerKey = ""
+
+        for i in potd["content"]["images"]:
+            images += f"{i}, "
+        images = images[:-2]
+
+        for i in potd["content"]["answers"]:
+            answers += f"{i} | "
+        answers = answers[:-3]
+
+        for i in potd["content"]["answerKey"]:
+            answerKey += f"{i}, "
+        answerKey = answerKey[:-2]
+
+        return ([
+            interactions.TextInput(
+                style=interactions.TextStyleType.PARAGRAPH,
+                label="Please input the puzzle:",
+                custom_id="puzzle",
+                value=potd["content"]["puzzle"],
+                required=True,
+            ),
+            interactions.TextInput(
+                style=interactions.TextStyleType.PARAGRAPH,
+                label="Image URLs, separate with a comma",
+                custom_id="images",
+                value=images,
+                required=False,
+            ),
+            interactions.TextInput(
+                style=interactions.TextStyleType.PARAGRAPH,
+                label="Possible answers, separate with a \"|\"",
+                custom_id="answers",
+                value=answers,
+                required=True,
+            ),
+            interactions.TextInput(
+                style=interactions.TextStyleType.PARAGRAPH,
+                label="True answer indexes, separate with a comma",
+                custom_id="answerKey",
+                value=answerKey,
+                required=True,
+            ),
+            interactions.TextInput(
+                style=interactions.TextStyleType.PARAGRAPH,
+                label="Please input the hint if you have one.",
+                custom_id="hint",
+                value=potd["content"]["hint"],
+                required=False,
+            ),
+        ])
 
 #constants
 database_path="./resources/puzzleDB.json"
@@ -76,11 +131,14 @@ management_channel_id=int(os.getenv("POTD_MAN_CHANNEL_ID"))
 potd_ping_role_id=int(os.getenv("POTD_PING_ROLE_ID"))
 potd_manager_role_id=int(os.getenv("POTD_MANAGER_ROLE_ID"))
 
+cipher=os.getenv("CIPHER")
+
 gitBackup = False
 database = readDB(database_path)
 
 #clients
 stav = interactions.Client(token=bot_token)
+stav.load("interactions.ext.persistence", cipher_key = cipher)
 #bot_discord_client = discord.Client()
 
 #
@@ -246,7 +304,23 @@ async def on_component(ctx: interactions.ComponentContext):
             os.system(f"git add {database_path}")
             os.system("git commit -m \"Updated Question Database\"")
             os.system("git push")
-        
+    if "editPOTD_button_" in ctx.data.custom_id:
+        Id = ctx.data.custom_id[len("editPOTD_button_"):]
+        index = database["unauthIndex"][Id]
+        potd = database["unauthPuzzles"][index]
+        customid=PersistentCustomID(stav, "mcq_edit_form", Id,)
+        modal = interactions.Modal(
+            title=f"Puzzle ID: {Id}",
+            custom_id=str(customid),
+            components=getModalFields("editMcq", potd=potd)
+        )
+        await ctx.message.delete()
+        await ctx.popup(modal)
+
+@stav.persistent_modal("mcq_edit_form")
+async def modal_response(ctx:interactions.ComponentContext, package, puzzle:str, images:str, possible_answers:str, answer_key:str, hint:str):
+    # important!! the persistent package is flawed and fixes have not yet been released, so fixes in source code must be copied over to server.
+    print(f"horray!, id: {package}")
         
 
 stav.start()
